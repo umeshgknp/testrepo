@@ -1,0 +1,30 @@
+public static function get_channel_ajax_sub_data($data, $count="") {
+    
+    $query = DB::table('channels')
+                ->select( 	'channels.id' ,
+                            'channels.channels_id' ,
+                            'channels.publisher_id' ,
+                            'channels.channel_name' ,
+                            'channels.created_date' ,
+                            'users.name' ,
+                            'users.email' )
+    ->leftJoin('users', 'users.id', '=', 'channels.publisher_id');
+                            
+    $search = isset( $data['search'] ) && !empty( $data['search'] ) ? $data['search'] : "";
+    
+    if( $search != "" ){
+        $query->where(function($qu) use ($search){
+            $qu->orWhere('channels.id', 'LIKE', '%'.$search.'%' );
+            $qu->orWhere('channels.channels_id', 'LIKE', '%'.$search.'%' );
+            $qu->orWhere('channels.channel_name', 'LIKE', '%'.$search.'%' );
+            $qu->orWhere('channels.created_date', 'LIKE', '%'.$search.'%' );
+        });
+    }
+    
+    if( $count != "" ){
+        return $query->count();
+    } else {
+        return $query->get();
+    }
+    
+}
